@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %} Latest Post Display {% endblock %}
+
+{% block content %}
+<h1> Post table </h1>
+
+{% for post in post_list %}
+  <p>{{ post.topic.name }}</p>
+  <p>{{ post.user.name }}</p>
+  <p>{{ post.content }}</p>
+{% endfor %}
+
+<div>
+  <form id="post_form">
+    <div class="row">
+      {% csrf_token %}
+      {% for field in form %}
+
+      <div class="form-group col-4">
+         <label class="col-12">{{ field.label }}</label>
+            {{ field }}
+      </div>
+
+      {% endfor %}
+      <input type="submit" class="btn btn-primary" value="Upload Post" />
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    $("#post_form").submit(function (e) {
+        e.preventDefault();
+        var serializedData = $(this).serialize();
+
+        $.ajax({
+            type: 'POST',
+            // push the post info to another URL
+            url: "{% url 'upload_post' %}",
+            data: serializedData,
+            success: function (response) {
+                // reset the form if it's success
+                $("#post_form").trigger('reset');
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                alert(response["responseJSON"]["error"]);
+            }
+        })
+    })
+</script>
+{% endblock javascript %}
